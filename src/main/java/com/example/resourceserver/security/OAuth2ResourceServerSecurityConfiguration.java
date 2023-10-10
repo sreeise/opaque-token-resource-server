@@ -10,19 +10,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
-
 @Slf4j
 @Configurable
 @EnableWebSecurity
 @EnableMethodSecurity
 public class OAuth2ResourceServerSecurityConfiguration {
-    @Value("${spring.security.oauth2.resourceserver.opaque.introspection-uri}")
+    @Value("${spring.security.oauth2.resourceserver.opaquetoken.introspection-uri}")
     String introspectionUri;
 
-    @Value("${spring.security.oauth2.resourceserver.opaque.introspection-client-id}")
+    @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-id}")
     String clientId;
 
-    @Value("${spring.security.oauth2.resourceserver.opaque.introspection-client-secret}")
+    @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
     String clientSecret;
 
     @Bean
