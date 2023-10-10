@@ -4,10 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Slf4j
@@ -15,14 +18,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class OAuth2ResourceServerSecurityConfiguration {
-    @Value("${spring.security.oauth2.resourceserver.opaquetoken.introspection-uri}")
-    String introspectionUri;
-
-    @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-id}")
-    String clientId;
-
-    @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
-    String clientSecret;
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    String jwkSetUri;
 
     @Bean
     SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
@@ -33,14 +30,14 @@ public class OAuth2ResourceServerSecurityConfiguration {
                         .requestMatchers("/**/message/**").hasAuthority("SCOPE_message:write")
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(configurer ->
-                        configurer.opaqueToken((opaqueToken) ->
-                                opaqueToken
-                                        .introspectionUri(this.introspectionUri)
-                                        .introspectionClientCredentials(this.clientId, this.clientSecret)
-                        )
-                );
+              .oauth2ResourceServer((configurer) -> configurer
+                    .jwt(Customizer.withDefaults()));
 
         return http.build();
+    }
+
+    @Bean
+    JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
     }
 }
